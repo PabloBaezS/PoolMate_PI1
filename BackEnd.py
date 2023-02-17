@@ -1,20 +1,13 @@
-import googlemaps
-import gmaps
+from flask_cors import CORS
+from flask import Flask, jsonify
+from processdata import processdata
 
-# Replace YOUR_API_KEY with your actual API key
-gmaps.configure(api_key='AIzaSyBaJ_KORpCWjJT8tP4N7L6VSRoHPHUTXFg')
 
-# Get your location
-gmaps_location = gmaps.datasets.load_dataset('taxi_rides')
-lat, lng = gmaps_location[0][0]
-
-# Create a map centered on your location
-fig = gmaps.figure(center=(lat, lng), zoom_level=13)
-
-# Add a marker for your location
-marker_locations = [(lat, lng)]
-markers = gmaps.marker_layer(marker_locations)
-fig.add_layer(markers)
-
-# Display the map
-fig
+app = Flask(__name__)
+CORS(app)
+@app.route('/displaylocations')
+def displaylocations():
+    l = processdata()
+    return jsonify(l)
+if __name__ == '__main__':
+    BackEnd.run(host = <host_name>, debug = True, port = <port_no>)

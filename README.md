@@ -1,3 +1,5 @@
+![PoolMate](https://i.ibb.co/VS5KS0v/logo-color.png)
+
 # PoolMate
 
 ## Vision Product
@@ -28,6 +30,3 @@ In this GitHub we'll publish all the coding (FrontEnd, BackEnd and DataBase) fro
 **Server:** Django, Python
 
 **FrontEnd:** JavaScript, HTML
-
-
-![PoolMate](https://i.ibb.co/VS5KS0v/logo-color.png)

@@ -25,8 +25,12 @@ In this GitHub we'll publish all the coding (FrontEnd, BackEnd and DataBase) fro
 
 ## Tech Stack
 
+To use the program we have to install previous Django libraries from the terminal using "pip install Django" and then open the container folder of the project and start the project there, finally, you can run the server by using "python manage.py runserver" and continue using the app and it's functionalities. Also, we have to run "import googlemaps" before starting the BackEnd process to ensure the correct run of the program.
+Until now those are the main libraries or programs to run our project.
+
 **BackEnd:** Python, GoogleMaps Api
 
 **Server:** Django, Python
 
-**FrontEnd:** JavaScript, HTML
+**FrontEnd:** JavaScript, HTML, JustinMind
+

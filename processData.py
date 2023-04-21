@@ -1,1 +1,0 @@
-#here we'll do the process data section using the Django DataBase and the BackEnd section to use improve the app!

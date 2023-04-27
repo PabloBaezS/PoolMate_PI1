@@ -1,69 +1,30 @@
+from django.core.validators import RegexValidator
 from django.db import models
 
+class User(models.Model):
+    userId = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100, unique=True, validators=[RegexValidator(r'^[a-zA-Z0-9._%+-]+@eafit\.edu\.co$', 'Enter a valid eafit.edu.co email address.')])
+    password = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    homeAddress = models.CharField(max_length=200)
 
-class CustomUser:
-    def __init__(self, idUser):
-        self.homeAddress = None
-        self.phone = None
-        self.password = None
-        self.email = None
-        self.name = None
-        self.idUser = idUser
+class Driver(User):
+    driverLicense = models.CharField(max_length=50)
+    car = models.ForeignKey('Vehicle', on_delete=models.CASCADE)
+    rate = models.FloatField()
 
-    def name(self,name):
-        self.name = name
+class Passenger(User):
+    pickup = models.CharField(max_length=200)
+    dropoff = models.CharField(max_length=200)
 
-    def email(self,email):
-        self.email = email
+class Admin(User):
+    id = models.AutoField(primary_key=True)
+    account = models.CharField(max_length=100)
 
-    def password(self, password):
-        self.password = password
-
-    def phone(self,phone):
-        self.phone = phone
-
-    def homeAddress(self, homeAddress):
-        self.homeAddress = homeAddress
-
-    def get_phone(self):
-        return self.phone
-
-    def get_homeAddress(self):
-        return self.homeAddress
-
-    def change_password(self, newPassword):
-        self.password = newPassword
-        print("Password changed successfully")
-
-    def get_email(self):
-        return self.email
-
-    def get_name(self):
-        return self.name
-
-    def get_idUser(self):
-         return self.idUser
-
-    def login(CustomUser):
-        return CustomUser
-
-class Passenger(CustomUser):
-    def __init__(self, idUser):
-        super().__init__(idUser)
-        self.dropoff = None
-        self.pickup = None
-
-    def pickup(self, pickup):
-        self.pickup = pickup
-
-    def dropoff(self, dropoff):
-        self.dropoff = dropoff
-
-    def rideRequest(self):
-        pass #Falta terminar!!!!
-
-    def feedback(self):
-        pass  # Falta terminar!!!!
-
-    def seeRoute(self):
-        pass  # Falta terminar!!!!
+class Vehicle(models.Model):
+    model = models.CharField(max_length=50)
+    licensePlate = models.CharField(max_length=20)
+    color = models.CharField(max_length=50)
+    driverId = models.CharField(max_length=50)
+    capacity = models.IntegerField()

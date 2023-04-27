@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from PoolMate import UserSection
+from UserSection import views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('loginSection/', UserSection.views.loginAccount),
+    path('loginSection/', views.loginAccount),
 ]

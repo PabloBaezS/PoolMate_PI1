@@ -1,8 +1,4 @@
 from django.contrib.auth.forms import UserCreationForm
 
 class UserCreateForm(UserCreationForm):
-    def __init__(self, *args, **kwargs):
-        super(UserCreateForm, self).__init__(*args, **kwargs)
-        for fieldname in ['UserId' , 'Username', 'Password1', 'Password2', 'Email (@eafit.edu.co)', 'Phone' , 'Home Address']:
-            self.fields[fieldname].help_text = None
-            self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
+    pass

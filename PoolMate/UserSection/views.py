@@ -1,12 +1,11 @@
-from django.shortcuts import render
 from .forms import UserCreateForm
-from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import redirect
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 
 def signupAccount(request):
@@ -43,3 +42,8 @@ def loginAccount(request):
     else:
         login(request,user)
     return redirect('home')
+
+
+
+def index(request):
+    return render(request, 'index.html')

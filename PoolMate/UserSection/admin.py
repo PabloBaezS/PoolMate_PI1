@@ -1,3 +1,9 @@
 from django.contrib import admin
+from UserSection.models import User, Vehicle, Driver, Passenger, Admin
 
-# Register your models here.
+admin.site.register(User)
+admin.site.register(Vehicle)
+admin.site.register(Driver)
+admin.site.register(Passenger)
+admin.site.register(Admin)
+

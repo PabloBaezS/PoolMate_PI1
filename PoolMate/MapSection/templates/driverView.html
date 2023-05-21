@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Driver View</title>
+</head>
+<body>
+    <h1>Driver View</h1>
+    <form method="POST" action="{% url 'save_route' %}">
+        {% csrf_token %}
+        <label for="origin">Origin:</label>
+        <input type="text" id="origin" name="origin" required>
+        <br>
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" name="destination" required>
+        <br>
+        <input type="submit" value="Save Route">
+    </form>
+</body>
+</html>

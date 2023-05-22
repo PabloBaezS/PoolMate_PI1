@@ -1,16 +1,22 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
+from django.core.validators import EmailValidator
 
+
+from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 class CustomUser(AbstractUser):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100, unique=True, validators=[RegexValidator(r'^[a-zA-Z0-9._%+-]+@eafit\.edu\.co$', 'Enter a valid eafit.edu.co email address.')])
+    # Add additional fields here
     phone = models.CharField(max_length=20)
     homeAddress = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.name
+        return self.username
+
+
 
 
 class Vehicle(models.Model):

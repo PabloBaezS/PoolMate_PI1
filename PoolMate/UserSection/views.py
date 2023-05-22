@@ -6,26 +6,36 @@ from django.contrib.auth import login
 from django.db import IntegrityError
 from .forms import SignUpForm
 from django.shortcuts import render, redirect
-from .models import Vehicle
+from .models import Vehicle, CustomUser
+from django.contrib.auth.hashers import make_password
 
 def signupAccount(request):
-    if request.method == 'GET':
-        form = SignUpForm()
-        return render(request, 'signUp.html', {'form': form})
-    else:
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            if form.cleaned_data['password'] == form.cleaned_data['confirm_password']:
-                try:
-                    user = form.save()
-                    login(request, user)
-                    return redirect('dashboard.html', user)
-                except IntegrityError:
-                    return render(request, 'signUp.html', {'form': form, 'error': 'Username already taken. Choose a new username.'})
-            else:
-                return render(request, 'signUp.html', {'form': form, 'error': 'Passwords do not match.'})
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        homeAddress = request.POST.get('homeAddress')
+        password = request.POST.get('password')
+
+        if name and email and password:
+            # Create a new CustomUser instance
+            user = CustomUser.objects.create(
+                name=name,
+                email=email,
+                phone=phone,
+                homeAddress=homeAddress
+            )
+
+            # Set the password for the user
+            user.set_password(password)
+            user.save()
+
+            return render(request, 'dashboard.html', {'user': user})
         else:
-            return render(request, 'dashboard.html', {'form': form})
+            return render(request, 'signup.html', {'error': 'Please fill in all required fields.'})
+    else:
+        return render(request, 'signup.html')
+
 
 
 @login_required
@@ -108,9 +118,9 @@ def driver_vehicle_info(request):
         )
 
         # Optionally, you can associate the vehicle with the logged-in driver
-        # driver = request.user.driver
-        # driver.car = vehicle
-        # driver.save()
+        driver = request.user.driver
+        driver.car = vehicle
+        driver.save()
 
         message = "Vehicle information saved successfully!"
 

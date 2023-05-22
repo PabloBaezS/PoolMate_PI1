@@ -16,7 +16,7 @@
                         <h1 style="color: rgb(225,80,91)">Registration</h1>
                         <div class="form-group">
                             <label style="color: black">Full Name</label>
-                            <input type="text" name="username" class="form-control" required>
+                            <input type="text" name="name" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label style="color: black">Institutional Email</label>
@@ -28,7 +28,7 @@
                         </div>
                         <div class="form-group">
                             <label style="color: black">Home Address</label>
-                            <input type="homeAddress" name="homeAddress" class="form-control" required>
+                            <input type="text" name="homeAddress" class="form-control" required>
                         </div>
                         <div class="form-group">
                             <label style="color: black">Password</label>
@@ -48,9 +48,11 @@
     </div>
 </div>
 {% endblock %}
+
 {% block head %}
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 {% endblock %}
 
 {% block navregistro %}active{% endblock %}
+

@@ -10,8 +10,5 @@ class Route(models.Model):
     route_points = models.JSONField(default=list)
 
 
-class Location(models.Model):
-    gpsPoint = models.CharField(max_length=100)
-
 
 

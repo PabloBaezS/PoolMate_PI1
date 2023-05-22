@@ -1,48 +1,45 @@
+import random
+import string
+
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from django.db import IntegrityError
 from .forms import SignUpForm
 from django.shortcuts import render, redirect
-from .models import Vehicle, CustomUser
-from django.contrib.auth.hashers import make_password
+from .models import Vehicle, CustomUser, Passenger, Driver
+from django.views.decorators.csrf import ensure_csrf_cookie
+
 
 def signupAccount(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        phone = request.POST.get('phone')
-        homeAddress = request.POST.get('homeAddress')
-        password = request.POST.get('password')
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            user = form.save()
 
-        if name and email and password:
-            # Create a new CustomUser instance
-            user = CustomUser.objects.create(
-                name=name,
-                email=email,
-                phone=phone,
-                homeAddress=homeAddress
-            )
+            # Create related Driver instance
+            driver = Driver.objects.create(driverLicense='', car=None, rate=0, customuser_ptr=user)
 
-            # Set the password for the user
-            user.set_password(password)
-            user.save()
+            # Create a new Vehicle instance and associate it with the driver
+            vehicle = Vehicle.objects.create(model='', licensePlate='', color='', driver=driver, capacity=0)
 
-            return render(request, 'dashboard.html', {'user': user})
-        else:
-            return render(request, 'signup.html', {'error': 'Please fill in all required fields.'})
+            # Create related Passenger instance
+            passenger = Passenger.objects.create(location='', customuser_ptr=user)
+            login(request, user)
+            return render(request,'dashboard.html')  # Replace 'dashboard' with the URL name for the dashboard page
     else:
-        return render(request, 'signup.html')
-
+        form = SignUpForm()
+    return render(request, 'signup.html', {'form': form})
 
 
 @login_required
 def logoutAccount(request):
     logout(request)
-    return redirect('home')
+    return render(request, 'index.html')
 
+@ensure_csrf_cookie
 def loginAccount(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -51,13 +48,13 @@ def loginAccount(request):
         if user is not None:
             # Authentication successful, log the user in
             login(request, user)
-            return redirect('dashboard.html')  # Replace 'home' with the URL name for the home page
+            return render(request, 'dashboard.html')  # Replace 'dashboard' with the URL name for the dashboard page
         else:
             # Authentication failed, show an error message
             error_message = "Invalid username or password."
             return render(request, 'login.html', {'error_message': error_message})
     else:
-        return render(request, 'dashboard.html')
+        return render(request, 'login.html')
 
 
 def index(request):
@@ -68,6 +65,17 @@ def security(request):
 
 def PoolMate(request):
     return render(request, 'PoolMate.html')
+
+def dashboard(request):
+    if not request.user.is_authenticated:
+        return render(request,'login.html')
+    else:
+        user = request.user
+        context = {
+            'user': user
+        }
+        return render(request, 'dashboard.html', context)
+
 
 @login_required
 def dashboard(request):
@@ -80,12 +88,19 @@ def dashboard(request):
 @login_required
 def passenger_dashboard(request):
     if not request.user.is_passenger:
-        return redirect('dashboard')  # Redirect to normal dashboard
+        return redirect('dashboard.html')  # Redirect to normal dashboard
+
     user = request.user
+    passenger = Passenger.objects.get(id=user.id)
+    location = passenger.location
+
     context = {
-        'user': user
+        'user': user,
+        'location': location
     }
+
     return render(request, 'passenger_dashboard.html', context)
+
 
 @login_required
 def driver_dashboard(request):
@@ -100,6 +115,7 @@ def driver_dashboard(request):
 
 def driver_vehicle_info(request):
     message = None
+    user = request.user
 
     if request.method == 'POST':
         model = request.POST.get('model')
@@ -118,7 +134,7 @@ def driver_vehicle_info(request):
         )
 
         # Optionally, you can associate the vehicle with the logged-in driver
-        driver = request.user.driver
+        driver = Driver.objects.get(id=user.id)
         driver.car = vehicle
         driver.save()
 

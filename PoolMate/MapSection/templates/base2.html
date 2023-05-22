@@ -20,13 +20,8 @@
                 <a href="{% url 'PoolMate' %}" >PoolMate</a>
                 <a href="{% url 'security' %}" >Security</a>
             </div>
-            {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" class="button button-profile">Profile</a>
-                <a href="{% url 'index' %}" class="button button-logout">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}" class="button button-login" style="border: 2px solid black; border-radius: 5px;">Login</a>
-                <a href="{% url 'signup' %}" class="button button-signup" style="background-color: rgb(225,80,91); color: white;border: 2px solid black; border-radius: 5px;">Sign Up</a>
-            {% endif %}
+                <a href="{% url 'logoutAccount' %}" class="button button-logout">Logout</a>
         </div>
     </nav>
     <div class="content">

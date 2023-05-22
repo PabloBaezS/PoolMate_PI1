@@ -7,6 +7,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from gmplot import gmplot
+from UserSection.models import Passenger
 
 def route(request):
     if request.method == 'POST':
@@ -91,15 +92,14 @@ def save_route(request):
         return redirect('driver_view')
 
 
+
+
 def save_location(request):
     if request.method == 'POST':
         location = request.POST.get('location')
+        passenger = Passenger.objects.get(id=request.user.id)
+        passenger.location = location
+        passenger.save()
 
-        # Here you can process and save the location as needed
-        # For example, you can save it to a database or perform other operations
+    return redirect('passenger_view')
 
-        # Render a success page or redirect to another view
-        return render(request, 'success.html')
-
-    # Render the form page if it's a GET request
-    return render(request, 'passengerView.html')

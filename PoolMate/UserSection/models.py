@@ -17,8 +17,6 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-
-
 class Vehicle(models.Model):
     model = models.CharField(max_length=50)
     licensePlate = models.CharField(max_length=20)
@@ -31,13 +29,10 @@ class Driver(CustomUser):
     driverLicense = models.CharField(max_length=50)
     car = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     rate = models.FloatField()
-    customuser_ptr = models.OneToOneField(CustomUser, on_delete=models.CASCADE, parent_link=True, primary_key=True)
 
 
 class Passenger(CustomUser):
-    pickup = models.CharField(max_length=200)
-    dropoff = models.CharField(max_length=200)
-    customuser_ptr = models.OneToOneField(CustomUser, on_delete=models.CASCADE, parent_link=True, primary_key=True)
+    location = models.CharField(max_length=100, default=None)
 
 
 class Admin(CustomUser):

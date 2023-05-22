@@ -1,56 +1,82 @@
 from django.shortcuts import render, redirect
-from .forms import CreateRideForm
-import polyline as polyline
-import requests
-from gmplot import gmplot
 from .models import Route
-
+import os
+import polyline
+import requests
+from django.conf import settings
+from django.http import JsonResponse
+from django.shortcuts import render
+from gmplot import gmplot
 
 def route(request):
-    # Define the API endpoint for the Directions API
-    endpoint = "https://maps.googleapis.com/maps/api/directions/json"
+    if request.method == 'POST':
+        origin = request.POST.get('origin')
+        destination = request.POST.get('destination')
 
-    origin = 'Universidad EAFIT, Medellin, Colombia'
-    destination = 'Calle 21#81-70, Medellin, Colombia'
-    key = 'AIzaSyBaJ_KORpCWjJT8tP4N7L6VSRoHPHUTXFg'
+        # Define the API endpoint for the Directions API
+        endpoint = "https://maps.googleapis.com/maps/api/directions/json"
 
-    # Define the API parameters
-    params = {
-        "origin": origin,
-        "destination": destination,
-        "key": key
-    }
+        # Set your Google Maps API key
+        key = "AIzaSyBaJ_KORpCWjJT8tP4N7L6VSRoHPHUTXFg"
 
-    # Send the API request
-    response = requests.get(endpoint, params=params).json()
-    # Extract the encoded polyline from the response
-    encoded_polyline = response["routes"][0]["overview_polyline"]["points"]
+        # Define the API parameters
+        params = {
+            "origin": origin,
+            "destination": destination,
+            "key": key
+        }
 
-    # Decode the polyline into a list of coordinates
-    route_points = polyline.decode(encoded_polyline)
+        # Send the API request
+        response = requests.get(endpoint, params=params).json()
 
-    # Save the route data to the database
-    route = Route.objects.create(origin=origin, destination=destination, route_points=route_points)
+        # Check if routes are available in the response
+        if "routes" in response and len(response["routes"]) > 0:
+            # Extract the encoded polyline from the first route
+            encoded_polyline = response["routes"][0]["overview_polyline"]["points"]
 
-    # Create the plot object
-    gmap = gmplot.GoogleMapPlotter(0, 0, 2)
+            # Decode the polyline into a list of coordinates
+            route_points = polyline.decode(encoded_polyline)
 
-    for lat, lng in route_points:
-        gmap.marker(lat, lng)
+            # Create the plot object
+            gmap = gmplot.GoogleMapPlotter.from_geocode("Medellin, Colombia")
 
-    # Plot the route on the map
-    lats, lngs = zip(*route_points)
-    gmap.plot(lats, lngs, 'cornflowerblue', edge_width=10)
+            # Plot the route on the map
+            lats, lngs = zip(*route_points)
+            gmap.plot(lats, lngs, 'cornflowerblue', edge_width=10)
 
-    # Save the map to an HTML file
-    gmap.draw("route.html")
+            # Save the map to a temporary file
+            temp_folder = os.path.join(settings.BASE_DIR, 'temp')
+            os.makedirs(temp_folder, exist_ok=True)  # Create the "temp" folder if it doesn't exist
+            map_file_path = os.path.join(temp_folder, 'map.html')
+            gmap.draw(map_file_path)
 
-    # Render the HTML page
+            # Get the relative URL for the map file
+            map_file_url = os.path.join('temp', 'map.html')
+
+            return JsonResponse({'success': True, 'redirect_url': map_file_url})
+
+        return JsonResponse({'success': False, 'error': 'No route found'})
+
     return render(request, 'route.html')
+
+
 
 
 def driver_view(request):
     return render(request, 'driverView.html')
+
+def passenger_view(request):
+    if request.method == 'POST':
+        location = request.POST.get('location')
+
+        # Here you can process and save the location as needed
+        # For example, you can save it to a database or perform other operations
+
+        # Render a success page or redirect to another view
+        return render(request, 'success.html')
+
+    # Render the form page if it's a GET request
+    return render(request, 'passengerView.html')
 
 
 def save_route(request):
@@ -63,3 +89,17 @@ def save_route(request):
 
         route = Route.objects.create(origin=origin, destination=destination, route_points=route_points)
         return redirect('driver_view')
+
+
+def save_location(request):
+    if request.method == 'POST':
+        location = request.POST.get('location')
+
+        # Here you can process and save the location as needed
+        # For example, you can save it to a database or perform other operations
+
+        # Render a success page or redirect to another view
+        return render(request, 'success.html')
+
+    # Render the form page if it's a GET request
+    return render(request, 'passengerView.html')

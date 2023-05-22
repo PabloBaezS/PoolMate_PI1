@@ -1,7 +1,7 @@
 from django.contrib import admin
-from UserSection.models import User, Vehicle, Driver, Passenger, Admin
+from UserSection.models import CustomUser, Vehicle, Driver, Passenger, Admin
 
-admin.site.register(User)
+admin.site.register(CustomUser)
 admin.site.register(Vehicle)
 admin.site.register(Driver)
 admin.site.register(Passenger)

@@ -1,19 +1,52 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Driver View</title>
-</head>
-<body>
-    <h1>Driver View</h1>
-    <form method="POST" action="{% url 'save_route' %}">
+{% extends 'base2.html' %}
+
+{% block content %}
+    <form method="POST">
         {% csrf_token %}
         <label for="origin">Origin:</label>
-        <input type="text" id="origin" name="origin" required>
+        <input type="text" name="origin" required>
         <br>
         <label for="destination">Destination:</label>
-        <input type="text" id="destination" name="destination" required>
+        <input type="text" name="destination" required>
         <br>
-        <input type="submit" value="Save Route">
+        <button type="submit" style="alignment: center">Submit</button>
     </form>
-</body>
-</html>
+    <div style="display: flex; justify-content: center; align-items: center">
+    <a href="{% url 'driver_vehicle_info' %}">
+        <button type="submit" class="btn btn-primary">Save Vehicle Information</button>
+    </a>
+</div>
+
+
+    <div id="map" style="height: 400px;"></div>
+
+    <script>
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: {lat: 6.244203, lng: -75.581211}
+            });
+
+            var routePoints = {{ route_points|safe }}
+            var decodedRoute = [];
+
+    for (var i = 0; i < routePoints.length; i++) {
+        var point = routePoints[i];
+        var latLng = new google.maps.LatLng(point[0], point[1]);
+        decodedRoute.push(latLng);
+    }
+
+            var routePath = new google.maps.Polyline({
+                path: decodedRoute,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+
+            routePath.setMap(map);
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaJ_KORpCWjJT8tP4N7L6VSRoHPHUTXFg&callback=initMap"></script>
+{% endblock %}

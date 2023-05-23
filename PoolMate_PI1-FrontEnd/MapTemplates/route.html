@@ -1,0 +1,46 @@
+{% extends 'base2.html' %}
+
+{% block content %}
+    <form method="POST">
+        {% csrf_token %}
+        <label for="origin">Origin:</label>
+        <input type="text" name="origin" required>
+        <br>
+        <label for="destination">Destination:</label>
+        <input type="text" name="destination" required>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="map" style="height: 400px;"></div>
+
+    <script>
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 10,
+                center: {lat: 6.244203, lng: -75.581211}
+            });
+
+            var routePoints = {{ route_points|safe }}
+            var decodedRoute = [];
+
+    for (var i = 0; i < routePoints.length; i++) {
+        var point = routePoints[i];
+        var latLng = new google.maps.LatLng(point[0], point[1]);
+        decodedRoute.push(latLng);
+    }
+
+            var routePath = new google.maps.Polyline({
+                path: decodedRoute,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+
+            routePath.setMap(map);
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBaJ_KORpCWjJT8tP4N7L6VSRoHPHUTXFg&callback=initMap"></script>
+{% endblock %}

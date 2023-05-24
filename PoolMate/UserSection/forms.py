@@ -1,13 +1,5 @@
-from django import forms
-from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from django.core.validators import RegexValidator
-
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
-
-
+from .models import CustomUser, Passenger, Driver
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
@@ -30,6 +22,12 @@ class SignUpForm(UserCreationForm):
         user.homeAddress = self.cleaned_data['homeAddress']
         if commit:
             user.save()
+            '''# Create related Driver instance
+            driver = Driver.objects.create(customuser_ptr=user, rate=0, driverLicense='')
+
+            # Create related Passenger instance
+            passenger = Passenger.objects.create(customuser_ptr=user, location='')'''
+
         return user
 
 

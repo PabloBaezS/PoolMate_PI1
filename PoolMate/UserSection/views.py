@@ -1,6 +1,3 @@
-import random
-import string
-
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
@@ -10,6 +7,8 @@ from .forms import SignUpForm
 from django.shortcuts import render, redirect
 from .models import Vehicle, CustomUser, Passenger, Driver
 from django.views.decorators.csrf import ensure_csrf_cookie
+import random
+
 
 
 def signupAccount(request):
@@ -18,17 +17,8 @@ def signupAccount(request):
         if form.is_valid():
             username = form.cleaned_data['username']
             user = form.save()
-
-            # Create related Driver instance
-            driver = Driver.objects.create(driverLicense='', car=None, rate=0, customuser_ptr=user)
-
-            # Create a new Vehicle instance and associate it with the driver
-            vehicle = Vehicle.objects.create(model='', licensePlate='', color='', driver=driver, capacity=0)
-
-            # Create related Passenger instance
-            passenger = Passenger.objects.create(location='', customuser_ptr=user)
             login(request, user)
-            return render(request,'dashboard.html')  # Replace 'dashboard' with the URL name for the dashboard page
+            return render(request,'dashboard.html')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
@@ -38,6 +28,7 @@ def signupAccount(request):
 def logoutAccount(request):
     logout(request)
     return render(request, 'index.html')
+
 
 @ensure_csrf_cookie
 def loginAccount(request):
@@ -121,7 +112,7 @@ def driver_vehicle_info(request):
         model = request.POST.get('model')
         license_plate = request.POST.get('licensePlate')
         color = request.POST.get('color')
-        driver_id = request.POST.get('driverId')
+        driver_id = random.randint(0,999)
         capacity = request.POST.get('capacity')
 
         # Save the vehicle information to the database
@@ -132,11 +123,6 @@ def driver_vehicle_info(request):
             driverId=driver_id,
             capacity=capacity
         )
-
-        # Optionally, you can associate the vehicle with the logged-in driver
-        driver = Driver.objects.get(id=user.id)
-        driver.car = vehicle
-        driver.save()
 
         message = "Vehicle information saved successfully!"
 

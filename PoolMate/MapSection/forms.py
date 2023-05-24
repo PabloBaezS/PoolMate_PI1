@@ -1,7 +1,6 @@
 from django import forms
-from .models import Route
 
-class CreateRideForm(forms.ModelForm):
-    class Meta:
-        model = Route
-        fields = ['origin', 'destination']
+class RouteForm(forms.Form):
+    origin = forms.CharField(max_length=100)
+    destination = forms.CharField(max_length=100)
+

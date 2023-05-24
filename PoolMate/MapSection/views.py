@@ -1,15 +1,18 @@
 from django.shortcuts import render, redirect
+from .forms import RouteForm
 from .models import Route
 import os
-import polyline
-import requests
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from gmplot import gmplot
 from UserSection.models import Passenger
+import polyline as polyline
+import requests
+from gmplot import gmplot
 
-def route(request):
+
+def driver_view(request):
     if request.method == 'POST':
         origin = request.POST.get('origin')
         destination = request.POST.get('destination')
@@ -24,46 +27,34 @@ def route(request):
         params = {
             "origin": origin,
             "destination": destination,
-            "key": key
+            "key": "AIzaSyBaJ_KORpCWjJT8tP4N7L6VSRoHPHUTXFg"  # Replace with your own API key
         }
 
         # Send the API request
         response = requests.get(endpoint, params=params).json()
 
-        # Check if routes are available in the response
-        if "routes" in response and len(response["routes"]) > 0:
-            # Extract the encoded polyline from the first route
-            encoded_polyline = response["routes"][0]["overview_polyline"]["points"]
+        # Extract the encoded polyline from the first route if available, otherwise set it to an empty string
+        encoded_polyline = response["routes"][0]["overview_polyline"]["points"] if "routes" in response and len(response["routes"]) > 0 else ""
 
-            # Decode the polyline into a list of coordinates
-            route_points = polyline.decode(encoded_polyline)
+        # Decode the polyline into a list of coordinates
+        route_points = polyline.decode(encoded_polyline)
 
-            # Create the plot object
-            gmap = gmplot.GoogleMapPlotter.from_geocode("Medellin, Colombia")
+        # Create the plot object
+        gmap = gmplot.GoogleMapPlotter(6.244203, -75.581211, 12)
 
-            # Plot the route on the map
-            lats, lngs = zip(*route_points)
-            gmap.plot(lats, lngs, 'cornflowerblue', edge_width=10)
+        for lats, lngs in route_points:
+            gmap.marker(lats, lngs)
 
-            # Save the map to a temporary file
-            temp_folder = os.path.join(settings.BASE_DIR, 'temp')
-            os.makedirs(temp_folder, exist_ok=True)  # Create the "temp" folder if it doesn't exist
-            map_file_path = os.path.join(temp_folder, 'map.html')
-            gmap.draw(map_file_path)
+        # Plot the route on the map
+        lats, lngs = zip(*route_points)
+        print(route_points)
+        gmap.plot(lats, lngs, 'cornflowerblue', edge_width=10)
 
-            # Get the relative URL for the map file
-            map_file_url = os.path.join('temp', 'map.html')
+        # Save the map to an HTML file
+        gmap.draw("static/route.html")
 
-            return JsonResponse({'success': True, 'redirect_url': map_file_url})
+        return render(request, 'driverView.html')
 
-        return JsonResponse({'success': False, 'error': 'No route found'})
-
-    return render(request, 'route.html')
-
-
-
-
-def driver_view(request):
     return render(request, 'driverView.html')
 
 def passenger_view(request):
@@ -82,14 +73,47 @@ def passenger_view(request):
 
 def save_route(request):
     if request.method == 'POST':
-        origin = request.POST.get('origin')
-        destination = request.POST.get('destination')
+        form = RouteForm(request.POST)
+        if form.is_valid():
+            origin = form.cleaned_data['origin']
+            destination = form.cleaned_data['destination']
 
-        # Perform the necessary operations to get the route points and save the route
-        # For example, you can use the code from the previous response to save the route points
+            # Define the API endpoint for the Directions API
+            endpoint = "https://maps.googleapis.com/maps/api/directions/json"
 
-        route = Route.objects.create(origin=origin, destination=destination, route_points=route_points)
-        return redirect('driver_view')
+            # Define the API parameters
+            params = {
+                "origin": origin,
+                "destination": destination,
+                "key": "AIzaSyBaJ_KORpCWjJT8tP4N7L6VSRoHPHUTXFg"  # Replace with your own API key
+            }
+
+            # Send the API request
+            response = requests.get(endpoint, params=params).json()
+
+            # Extract the encoded polyline from the response
+            encoded_polyline = response["routes"][0]["overview_polyline"]["points"]
+
+            # Decode the polyline into a list of coordinates
+            route_points = polyline.decode(encoded_polyline)
+
+            # Create the plot object
+            gmap = gmplot.GoogleMapPlotter(0, 0, 2)
+
+            for lats, lngs in route_points:
+                gmap.marker(lats, lngs)
+
+            # Plot the route on the map
+            lats, lngs = zip(*route_points)
+            print(route_points)
+            route = Route.objects.create(origin=origin, destination=destination, route_points=encoded_polyline)
+            route.save()
+
+            return render(request, 'driverView.html')  # Replace 'dashboard' with the URL name for the dashboard page
+    else:
+        form = RouteForm()
+
+    return render(request, 'driverView.html', {'form': form})
 
 
 

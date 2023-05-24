@@ -9,6 +9,9 @@ class Route(models.Model):
     destination = models.CharField(max_length=200)
     route_points = models.JSONField(default=list)
 
+    def __str__(self):
+        return f"Route from {self.origin} to {self.destination}"
+
 
 
 
